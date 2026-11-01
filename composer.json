@@ -46,12 +46,15 @@
         ]
     },
     "description": "A lightweight database layer on top of PHP's PDO that allows you to utilize a database without having to take care of differences in SQL dialects.",
-    "homepage": "https://github.com/zetacomponents",
+    "homepage": "https://github.com/se7enxweb/expcomponents-database",
     "license": "Apache-2.0",
-    "name": "zetacomponents/database",
+    "name": "se7enxweb/expcomponents-database",
     "type": "library",
     "require": {
         "zetacomponents/base": "~1.8"
+    },
+    "replace": {
+        "zetacomponents/database": "self.version"
     },
     "require-dev": {
         "phpunit/phpunit": "~9.0",
