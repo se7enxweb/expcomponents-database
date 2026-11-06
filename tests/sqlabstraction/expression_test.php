@@ -1557,7 +1557,9 @@ class ezcQueryExpressionTest extends ezcTestCase
         $q->select( $q->expr->round( 'empl', 2 ) )->from( 'query_test' )->where( $q->expr->eq( 'id', 2 ) );
         $stmt = $this->q->prepare();
         $stmt->execute();
-        $this->assertEquals( '500.00', $stmt->fetchColumn( 0 ) );
+        // ROUND() returns 500.0 on SQLite and '500.00' on MySQL and PostgreSQL; PDO gives a string
+        // before PHP 8.1 and a float since, so compare the number.
+        $this->assertSame( 500.0, (float)$stmt->fetchColumn( 0 ) );
     }
 
     public function testModImplWithAlias()
