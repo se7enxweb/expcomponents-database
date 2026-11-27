@@ -2,7 +2,7 @@
 
 A lightweight database layer on top of PHP's PDO that allows you to utilize a database without having to take care of differences in SQL dialects.
 
-This is the Exponential fork of [zetacomponents/Database](https://github.com/zetacomponents/Database),
+This is the Exponential Components fork of [zetacomponents/Database](https://github.com/zetacomponents/Database),
 maintained by 7x (se7en.x) and the Exponential Foundation for Exponential and anyone else
 who uses the Zeta Components Database component on current PHP versions. All credit for the
 component goes to the Zeta Components authors listed in `composer.json` and `CREDITS`;
