@@ -86,12 +86,17 @@ class ezcQuerySelectMssql extends ezcQuerySelect
      * $offset controls which row that will be the first in the result
      * set from the total amount of matching rows.
      *
-     * @param int $limit integer expression
-     * @param int $offset integer expression
+     * @throws ezcQueryInvalidParameterException
+     *         if $limit or $offset is anything but a non-negative integer or
+     *         a string of digits.
+     * @param int|string $limit non-negative integer or digit string
+     * @param int|string $offset non-negative integer or digit string
      * @return void
      */
     public function limit( $limit, $offset = 0 )
     {
+        $limit = self::integerArgument( $limit, __METHOD__, 1 );
+        $offset = self::integerArgument( $offset, __METHOD__, 2 );
         $this->hasLimit = true;
         $this->limit = $limit;
         $this->offset = $offset;

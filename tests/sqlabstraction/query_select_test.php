@@ -427,6 +427,55 @@ class ezcQuerySelectTest extends ezcTestCase
         $this->assertEquals( $reference, $this->q->buildLimit() );
     }
 
+    public function testLimitDigitStrings()
+    {
+        $reference = 'LIMIT 5 OFFSET 0';
+        $this->q->limit( "5", "0" );
+        $this->assertEquals( $reference, $this->q->buildLimit() );
+    }
+
+    public function testLimitRefusesSqlText()
+    {
+        try
+        {
+            $this->q->limit( "1; DROP TABLE x" );
+            $this->fail( "Expected exception" );
+        }
+        catch ( ezcQueryInvalidParameterException $e )
+        {
+        }
+        $this->assertEquals( '', (string) $this->q->buildLimit() );
+    }
+
+    public function testLimitRefusesNegativeOffset()
+    {
+        try
+        {
+            $this->q->limit( 1, -1 );
+            $this->fail( "Expected exception" );
+        }
+        catch ( ezcQueryInvalidParameterException $e )
+        {
+        }
+        $this->assertEquals( '', (string) $this->q->buildLimit() );
+    }
+
+    public function testLimitRefusesFloatAndBool()
+    {
+        foreach ( array( 1.5, true, null ) as $value )
+        {
+            try
+            {
+                $this->q->limit( $value );
+                $this->fail( "Expected exception for " . var_export( $value, true ) );
+            }
+            catch ( ezcQueryInvalidParameterException $e )
+            {
+            }
+        }
+        $this->assertEquals( '', (string) $this->q->buildLimit() );
+    }
+
     public function testGroupBySingle()
     {
         $reference = 'GROUP BY id';

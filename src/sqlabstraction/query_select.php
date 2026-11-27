@@ -696,12 +696,26 @@ class ezcQuerySelect extends ezcQuery
      * databases support it one way or the other and because it is
      * essential.
      *
-     * @param string $limit integer expression
-     * @param string $offset integer expression
+     * @throws ezcQueryInvalidParameterException
+     *         if $limit or $offset is anything but a non-negative integer or
+     *         a string of digits.
+     * @param int|string $limit non-negative integer or digit string
+     * @param int|string $offset non-negative integer or digit string
      * @return ezcQuerySelect
      */
     public function limit( $limit, $offset = '' )
     {
+        // Both are checked before the limit is changed.
+        $limit = self::integerArgument( $limit, __METHOD__, 1 );
+        if ( $offset !== '' && $offset !== null )
+        {
+            $offset = self::integerArgument( $offset, __METHOD__, 2 );
+        }
+        else
+        {
+            $offset = '';
+        }
+
         if ( $offset === '' )
         {
             $this->limitString = "LIMIT {$limit}";
@@ -713,6 +727,33 @@ class ezcQuerySelect extends ezcQuery
         $this->lastInvokedMethod = 'limit';
 
         return $this;
+    }
+
+    /**
+     * Returns $value as an integer if it is a non-negative integer or a
+     * string of digits.
+     *
+     * Limit and offset are written into the SQL text, so nothing else may
+     * pass.
+     *
+     * @throws ezcQueryInvalidParameterException
+     *         if $value is anything else (null, bool, float, a negative
+     *         number, a string with other characters).
+     * @param mixed $value
+     * @param string $method the calling method, for the exception
+     * @param int $parameterNumber the position of $value in that method
+     * @return int
+     */
+    protected static function integerArgument( $value, $method, $parameterNumber )
+    {
+        if ( ( is_int( $value ) && $value >= 0 ) ||
+             ( is_string( $value ) && ctype_digit( $value ) ) )
+        {
+            return (int)$value;
+        }
+
+        $found = is_scalar( $value ) ? var_export( $value, true ) : gettype( $value );
+        throw new ezcQueryInvalidParameterException( $method, $parameterNumber, $found, 'a non-negative integer' );
     }
 
     /**
