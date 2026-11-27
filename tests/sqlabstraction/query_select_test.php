@@ -476,6 +476,53 @@ class ezcQuerySelectTest extends ezcTestCase
         $this->assertEquals( '', (string) $this->q->buildLimit() );
     }
 
+    public function testLimitRefusesNonIntegerOffset()
+    {
+        foreach ( array( 1.5, true ) as $value )
+        {
+            try
+            {
+                $this->q->limit( 1, $value );
+                $this->fail( "Expected exception for " . var_export( $value, true ) );
+            }
+            catch ( ezcQueryInvalidParameterException $e )
+            {
+            }
+        }
+        $this->assertEquals( '', (string) $this->q->buildLimit() );
+    }
+
+    public function testRefusedLimitKeepsThePreviousLimit()
+    {
+        $reference = 'LIMIT 3 OFFSET 4';
+        $this->q->limit( 3, 4 );
+        try
+        {
+            $this->q->limit( "1; DROP TABLE x" );
+            $this->fail( "Expected exception" );
+        }
+        catch ( ezcQueryInvalidParameterException $e )
+        {
+        }
+        $this->assertEquals( $reference, $this->q->buildLimit() );
+    }
+
+    public function testLimitRefusalMessageIsOneBoundedLine()
+    {
+        try
+        {
+            $this->q->limit( "1\r\nINJECTED " . str_repeat( 'A', 5000 ) );
+            $this->fail( "Expected exception" );
+        }
+        catch ( ezcQueryInvalidParameterException $e )
+        {
+            $message = $e->getMessage();
+        }
+        $this->assertSame( 0, preg_match( '/[\x00-\x1F\x7F]/', $message ) );
+        $this->assertLessThan( 300, strlen( $message ) );
+        $this->assertStringContainsString( 'INJECTED', $message );
+    }
+
     public function testGroupBySingle()
     {
         $reference = 'GROUP BY id';

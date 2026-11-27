@@ -752,6 +752,16 @@ class ezcQuerySelect extends ezcQuery
             return (int)$value;
         }
 
+        if ( is_string( $value ) )
+        {
+            // The message shows a refused string as one short line.
+            $cut = strlen( $value ) > 40;
+            $value = preg_replace( '/[\x00-\x1F\x7F]/', ' ', substr( $value, 0, 40 ) );
+            if ( $cut )
+            {
+                $value .= '...';
+            }
+        }
         $found = is_scalar( $value ) ? var_export( $value, true ) : gettype( $value );
         throw new ezcQueryInvalidParameterException( $method, $parameterNumber, $found, 'a non-negative integer' );
     }
